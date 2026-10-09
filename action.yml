@@ -1,0 +1,92 @@
+name: Landauer Gap PR energy check
+description: Measure the energy of a command on every pull request, compare it with the base branch, and comment the result.
+author: Landauer Gap
+branding:
+  icon: zap
+  color: yellow
+
+inputs:
+  command:
+    description: The command to measure, run with bash in working-directory (e.g. "pytest -q" or "python bench.py").
+    required: true
+  setup:
+    description: Command that prepares each checkout before measuring (e.g. "pip install -e ."). Runs once for this change and once for the base.
+    default: ""
+  working-directory:
+    description: Directory to run in, relative to the repository root.
+    default: "."
+  runs:
+    description: Measured runs per side. The median is compared.
+    default: "3"
+  warmup:
+    description: Unmeasured runs per side first (fills caches).
+    default: "0"
+  budget:
+    description: Fail the check when energy grows by more than this many percent. Empty means never fail.
+    default: ""
+  comment:
+    description: Post or update one comment on the pull request ("true" or "false").
+    default: "true"
+  project:
+    description: Also save each result to this project on your Landauer Gap Tracking page (needs api-key).
+    default: ""
+  api-key:
+    description: Landauer Gap API key, from a secret (only needed with project).
+    default: ""
+  github-token:
+    description: "Token used to comment. The default works when the job has `permissions: pull-requests: write`."
+    default: ${{ github.token }}
+  package:
+    description: What pip installs.
+    default: landauer-gap
+
+outputs:
+  energy-j:
+    description: Median energy of this change, in joules.
+    value: ${{ steps.check.outputs.energy-j }}
+  base-energy-j:
+    description: Median energy of the base branch, in joules.
+    value: ${{ steps.check.outputs.base-energy-j }}
+  change-pct:
+    description: Change in percent (positive means more energy).
+    value: ${{ steps.check.outputs.change-pct }}
+  over-budget:
+    description: '"true" when the change is over the budget.'
+    value: ${{ steps.check.outputs.over-budget }}
+
+runs:
+  using: composite
+  steps:
+    - name: Install joules
+      shell: bash
+      env:
+        JOULES_PACKAGE: ${{ inputs.package }}
+      run: python3 -m pip install --quiet --disable-pip-version-check "$JOULES_PACKAGE"
+
+    - name: Fetch the base branch
+      if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
+      shell: bash
+      run: git fetch --no-tags --depth=1 origin "+refs/heads/${GITHUB_BASE_REF}:refs/remotes/origin/${GITHUB_BASE_REF}"
+
+    - name: Measure
+      id: check
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      # Inputs reach the script only through environment variables, never pasted into it.
+      env:
+        JOULES_COMMAND: ${{ inputs.command }}
+        JOULES_SETUP: ${{ inputs.setup }}
+        JOULES_RUNS: ${{ inputs.runs }}
+        JOULES_WARMUP: ${{ inputs.warmup }}
+        JOULES_BUDGET: ${{ inputs.budget }}
+        JOULES_COMMENT: ${{ inputs.comment }}
+        JOULES_PROJECT: ${{ inputs.project }}
+        LANDAUER_API_KEY: ${{ inputs.api-key }}
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+      run: |
+        args=(ci --runs "$JOULES_RUNS" --warmup "$JOULES_WARMUP")
+        [ -n "$JOULES_SETUP" ] && args+=(--setup "$JOULES_SETUP")
+        [ -n "$JOULES_BUDGET" ] && args+=(--budget "$JOULES_BUDGET")
+        [ "$JOULES_COMMENT" = "true" ] && args+=(--comment)
+        [ -n "$JOULES_PROJECT" ] && [ -n "$LANDAUER_API_KEY" ] && args+=(--track "$JOULES_PROJECT")
+        joules "${args[@]}" -- bash -c "$JOULES_COMMAND"

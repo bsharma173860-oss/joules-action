@@ -1,0 +1,67 @@
+name: Landauer Gap energy check
+description: Estimate the electricity, carbon and cost of an AI training or inference workload, post a summary, and fail the check when it goes over budget.
+author: Bharat Sharma
+branding:
+  icon: zap
+  color: blue
+
+inputs:
+  api-key:
+    description: Your Landauer Gap API key (store it as a repository secret).
+    required: true
+  inputs:
+    description: Workload inputs as JSON, the same body as POST /api/v1/estimate.
+    required: false
+    default: "{}"
+  inputs-file:
+    description: Path to a JSON file with the inputs. Overrides `inputs`.
+    required: false
+    default: ""
+  budget-kwh:
+    description: Fail the check if facility energy is above this many kWh.
+    required: false
+    default: ""
+  budget-co2-tonnes:
+    description: Fail the check if emissions are above this many tonnes of CO2.
+    required: false
+    default: ""
+  report:
+    description: Set to "true" to also download the PDF report (Pro). Its path is in the `report-path` output.
+    required: false
+    default: "false"
+  api-url:
+    description: API base URL.
+    required: false
+    default: https://landauer-gap.vercel.app
+
+outputs:
+  energy-kwh:
+    description: Facility energy in kWh (per year for inference).
+    value: ${{ steps.run.outputs.energy-kwh }}
+  co2-tonnes:
+    description: Emissions in tonnes of CO2.
+    value: ${{ steps.run.outputs.co2-tonnes }}
+  cost:
+    description: Electricity cost in the chosen currency.
+    value: ${{ steps.run.outputs.cost }}
+  landauer-gap:
+    description: Energy per operation divided by the Landauer limit.
+    value: ${{ steps.run.outputs.landauer-gap }}
+  report-path:
+    description: Path of the downloaded PDF report, when `report` is true.
+    value: ${{ steps.run.outputs.report-path }}
+
+runs:
+  using: composite
+  steps:
+    - id: run
+      shell: bash
+      env:
+        LG_KEY: ${{ inputs.api-key }}
+        LG_INPUTS: ${{ inputs.inputs }}
+        LG_INPUTS_FILE: ${{ inputs.inputs-file }}
+        LG_BUDGET_KWH: ${{ inputs.budget-kwh }}
+        LG_BUDGET_CO2: ${{ inputs.budget-co2-tonnes }}
+        LG_REPORT: ${{ inputs.report }}
+        LG_URL: ${{ inputs.api-url }}
+      run: bash "$GITHUB_ACTION_PATH/entrypoint.sh"
