@@ -1,4 +1,4 @@
-name: Landauer Gap energy check
+name: WattOps energy check
 description: Estimate the electricity, carbon and cost of an AI training or inference workload, post a summary, and fail the check when it goes over budget.
 author: Bharat Sharma
 branding:
@@ -7,7 +7,7 @@ branding:
 
 inputs:
   api-key:
-    description: Your Landauer Gap API key (store it as a repository secret).
+    description: Your WattOps API key (store it as a repository secret).
     required: true
   inputs:
     description: Workload inputs as JSON, the same body as POST /api/v1/estimate.

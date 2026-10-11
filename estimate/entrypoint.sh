@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Landauer Gap GitHub Action. Inputs come only through environment variables (never spliced
+# WattOps GitHub Action. Inputs come only through environment variables (never spliced
 # into the script), so workflow inputs cannot inject shell commands.
 set -euo pipefail
 
 if [ -z "${LG_KEY:-}" ]; then
-  echo "::error title=Landauer Gap::No API key. Create one at https://landauer-gap.vercel.app/#/settings/keys, add it in this repository under Settings → Secrets and variables → Actions as LANDAUER_API_KEY, and pass it as api-key: \${{ secrets.LANDAUER_API_KEY }}"
+  echo "::error title=WattOps::No API key. Create one at https://landauer-gap.vercel.app/#/settings/keys, add it in this repository under Settings → Secrets and variables → Actions as LANDAUER_API_KEY, and pass it as api-key: \${{ secrets.LANDAUER_API_KEY }}"
   exit 1
 fi
 LG_URL="${LG_URL:-https://landauer-gap.vercel.app}"
@@ -15,7 +15,7 @@ trap 'rm -rf "$tmp"' EXIT
 
 if [ -n "${LG_INPUTS_FILE:-}" ]; then body="$(cat "$LG_INPUTS_FILE")"; else body="${LG_INPUTS:-{\}}"; fi
 if ! jq -e 'type == "object"' >/dev/null 2>&1 <<<"$body"; then
-  echo "::error title=Landauer Gap::inputs must be a JSON object, e.g. {\"params\":70,\"tokens\":15000}"
+  echo "::error title=WattOps::inputs must be a JSON object, e.g. {\"params\":70,\"tokens\":15000}"
   exit 1
 fi
 
@@ -29,7 +29,7 @@ code="$(call /api/v1/estimate "$tmp/est.json")"
 if [ "$code" != "200" ]; then
   msg="$(jq -r '.error.message // "request failed"' "$tmp/est.json" 2>/dev/null || echo "request failed")"
   fields="$(jq -r '[.error.fields[]? | "\(.field): \(.message)"] | join("; ")' "$tmp/est.json" 2>/dev/null || true)"
-  echo "::error title=Landauer Gap (HTTP $code)::$msg${fields:+ — $fields}"
+  echo "::error title=WattOps (HTTP $code)::$msg${fields:+ — $fields}"
   exit 1
 fi
 
@@ -49,7 +49,7 @@ label="$(r '.label')"
 
 per=""; [ "$mode" = "inference" ] && per=" / year"
 {
-  echo "### ⚡ Landauer Gap — $label"
+  echo "### ⚡ WattOps — $label"
   echo
   echo "| Electricity$per | CO₂$per | Cost$per | Landauer gap |"
   echo "|---|---|---|---|"
@@ -81,9 +81,9 @@ if [ "${LG_REPORT:-false}" = "true" ]; then
     echo "report-path=$dest" >> "$out"
     echo "📄 PDF report saved to \`$dest\`" >> "$summary"
   else
-    echo "::warning title=Landauer Gap report::$(jq -r '.error.message // "report failed"' "$dest" 2>/dev/null || echo "report failed") (HTTP $code)"
+    echo "::warning title=WattOps report::$(jq -r '.error.message // "report failed"' "$dest" 2>/dev/null || echo "report failed") (HTTP $code)"
   fi
 fi
 
-echo "Landauer Gap: $label — $(num "$kwh") kWh, $(num "$co2") t CO2, gap $(printf '%.2e' "$gap")x"
+echo "WattOps: $label — $(num "$kwh") kWh, $(num "$co2") t CO2, gap $(printf '%.2e' "$gap")x"
 exit "$fail"

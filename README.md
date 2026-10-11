@@ -1,4 +1,4 @@
-# Landauer Gap PR energy check
+# WattOps PR energy check
 
 A GitHub Action that measures the energy of a command on every pull request, compares it with the
 base branch and comments the result, the way coverage bots comment on coverage:
@@ -64,7 +64,7 @@ For a budget on a *planned* training run (estimated kWh or CO₂ before you pay 
 ## Estimate a workload instead
 
 `bsharma173860-oss/joules-action/estimate@v1` posts a workload's estimated electricity, CO₂ and cost
-(from the Landauer Gap API) and fails the check when it goes over a budget:
+(from the WattOps API) and fails the check when it goes over a budget:
 
 ```yaml
       - uses: bsharma173860-oss/joules-action/estimate@v1
@@ -74,4 +74,4 @@ For a budget on a *planned* training run (estimated kWh or CO₂ before you pay 
           budget-kwh: 5000
 ```
 
-Landauer Gap: https://landauer-gap.vercel.app · joules on PyPI: https://pypi.org/project/landauer-gap/
+WattOps (formerly Landauer Gap): https://landauer-gap.vercel.app · joules on PyPI: https://pypi.org/project/landauer-gap/
