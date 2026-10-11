@@ -1,6 +1,6 @@
-name: Landauer Gap PR energy check
+name: WattOps PR energy check
 description: Measure the energy of a command on every pull request, compare it with the base branch, and comment the result.
-author: Landauer Gap
+author: WattOps
 branding:
   icon: zap
   color: yellow
@@ -28,10 +28,10 @@ inputs:
     description: Post or update one comment on the pull request ("true" or "false").
     default: "true"
   project:
-    description: Also save each result to this project on your Landauer Gap Tracking page (needs api-key).
+    description: Also save each result to this project on your WattOps Tracking page (needs api-key).
     default: ""
   api-key:
-    description: Landauer Gap API key, from a secret (only needed with project).
+    description: WattOps API key, from a secret (only needed with project).
     default: ""
   github-token:
     description: "Token used to comment. The default works when the job has `permissions: pull-requests: write`."
