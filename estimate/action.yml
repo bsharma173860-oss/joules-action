@@ -32,7 +32,7 @@ inputs:
   api-url:
     description: API base URL.
     required: false
-    default: https://landauer-gap.vercel.app
+    default: https://wattops.dev
 
 outputs:
   energy-kwh:
