@@ -4,10 +4,10 @@
 set -euo pipefail
 
 if [ -z "${LG_KEY:-}" ]; then
-  echo "::error title=WattOps::No API key. Create one at https://landauer-gap.vercel.app/#/settings/keys, add it in this repository under Settings → Secrets and variables → Actions as LANDAUER_API_KEY, and pass it as api-key: \${{ secrets.LANDAUER_API_KEY }}"
+  echo "::error title=WattOps::No API key. Create one at https://wattops.dev/#/settings/keys, add it in this repository under Settings → Secrets and variables → Actions as LANDAUER_API_KEY, and pass it as api-key: \${{ secrets.LANDAUER_API_KEY }}"
   exit 1
 fi
-LG_URL="${LG_URL:-https://landauer-gap.vercel.app}"
+LG_URL="${LG_URL:-https://wattops.dev}"
 out="${GITHUB_OUTPUT:-/dev/null}"
 summary="${GITHUB_STEP_SUMMARY:-/dev/null}"
 tmp="$(mktemp -d)"

@@ -43,7 +43,7 @@ jobs:
 | `runs` / `warmup` | `3` / `0` | runs per side; the medians are compared |
 | `budget` | | percent growth that fails the check |
 | `comment` | `true` | one comment per pull request, updated on each push |
-| `project` + `api-key` | | also chart every result on your [Tracking page](https://landauer-gap.vercel.app/#/track) |
+| `project` + `api-key` | | also chart every result on your [Tracking page](https://wattops.dev/#/track) |
 
 Outputs: `energy-j`, `base-energy-j`, `change-pct`, `over-budget`.
 
@@ -74,4 +74,4 @@ For a budget on a *planned* training run (estimated kWh or CO₂ before you pay 
           budget-kwh: 5000
 ```
 
-WattOps (formerly Landauer Gap): https://landauer-gap.vercel.app · joules on PyPI: https://pypi.org/project/landauer-gap/
+WattOps (formerly Landauer Gap): https://wattops.dev · joules on PyPI: https://pypi.org/project/landauer-gap/
